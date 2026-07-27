@@ -13,14 +13,20 @@ import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 const styles = (theme: Theme, size: string) =>
   css({
     display: "flex",
-    flexDirection: "column",
+    flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
+    gap: size === "small" ? theme.spacing(2) : theme.spacing(3),
     padding: size === "small" ? theme.spacing(2) : size === "large" ? theme.spacing(6) : theme.spacing(4),
-    textAlign: "center",
+    textAlign: "left",
+    ".empty-copy": {
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "flex-start"
+    },
     ".empty-icon": {
       color: theme.vars.palette.text.disabled,
-      marginBottom: theme.spacing(2),
+      flexShrink: 0,
       fontSize: size === "small" ? 40 : size === "large" ? 80 : 60
     },
     ".empty-title": {
@@ -115,24 +121,26 @@ export const EmptyState: React.FC<EmptyStateProps> = memo(({
       aria-live="polite"
     >
       {displayIcon}
-      <Typography variant={titleVariant} className="empty-title">
-        {displayTitle}
-      </Typography>
-      {displayDescription && (
-        <Typography variant={descriptionVariant} className="empty-description" component="div">
-          {displayDescription}
+      <Box className="empty-copy">
+        <Typography variant={titleVariant} className="empty-title">
+          {displayTitle}
         </Typography>
-      )}
-      {actionText && onAction && (
-        <Button
-          variant="outlined"
-          onClick={onAction}
-          className="empty-action"
-          size={size === "large" ? "large" : size === "small" ? "small" : "medium"}
-        >
-          {actionText}
-        </Button>
-      )}
+        {displayDescription && (
+          <Typography variant={descriptionVariant} className="empty-description" component="div">
+            {displayDescription}
+          </Typography>
+        )}
+        {actionText && onAction && (
+          <Button
+            variant="outlined"
+            onClick={onAction}
+            className="empty-action"
+            size={size === "large" ? "large" : size === "small" ? "small" : "medium"}
+          >
+            {actionText}
+          </Button>
+        )}
+      </Box>
     </Box>
   );
 });
