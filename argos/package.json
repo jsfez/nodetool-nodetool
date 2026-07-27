@@ -1,0 +1,9 @@
+{
+  "name": "argos-visual-testing",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@argos-ci/playwright": "7.4.0",
+    "@playwright/test": "1.60.0"
+  }
+}

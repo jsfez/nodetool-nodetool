@@ -1,0 +1,59 @@
+name: Argos
+
+# Visual review of the Storybook design system with Argos, on the same surface
+# `chromatic.config.json` already describes: the static Storybook that
+# `build-storybook` produces in `web`.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+env:
+  CI: true
+
+concurrency:
+  group: argos-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  # Argos authenticates with a short lived OpenID Connect token, so there is no
+  # secret to store on the repository.
+  id-token: write
+
+jobs:
+  argos:
+    name: Storybook visual tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+        with:
+          # Argos resolves the base build by walking the commit history.
+          # `blob:none` keeps that history without the contents of past
+          # revisions, which matters on a repository this size.
+          fetch-depth: 0
+          filter: blob:none
+
+      - name: Set up and install
+        # Storybook resolves @nodetool-ai/* to TS sources via the `nodetool-dev`
+        # condition, so no package dist build is needed here either.
+        uses: ./.github/actions/setup-build
+        with:
+          build-packages: "false"
+
+      - name: Build Storybook
+        run: npm run build-storybook --workspace=web
+
+      - name: Install Argos dependencies
+        # Installed under `argos/` so the workspace manifests and the root
+        # lockfile stay untouched.
+        run: npm install --prefix argos --no-audit --no-fund
+
+      - name: Install Playwright browser
+        run: ./argos/node_modules/.bin/playwright install chromium --with-deps
+
+      - name: Capture the Storybook
+        run: ./argos/node_modules/.bin/playwright test --config argos/playwright.config.ts
